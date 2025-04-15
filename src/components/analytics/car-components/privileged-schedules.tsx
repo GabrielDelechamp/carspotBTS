@@ -28,26 +28,36 @@ const Heatmap = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Requête modifiée pour utiliser la syntaxe correcte de Supabase
+        // Requête pour utiliser la syntaxe correcte de Supabase
         const { data: rawData, error: supabaseError } = await supabase
           .rpc('get_spot_frequency_heatmap')
           .returns<RawHeatmapData[]>();
 
         if (supabaseError) throw supabaseError;
 
+        // Initialiser le tableau avec des zéros
         const heatmapData = Array(7)
           .fill(null)
           .map(() => Array(24).fill(0));
 
-        if (rawData) {
+        if (rawData && Array.isArray(rawData)) {
           rawData.forEach((row) => {
-            if (row.day_of_week >= 0 &&
+            // Vérifier que row existe et contient les propriétés nécessaires
+            if (row && 
+                typeof row.day_of_week === 'number' && 
+                typeof row.hour_of_day === 'number' &&
+                row.day_of_week >= 0 &&
                 row.day_of_week < 7 &&
                 row.hour_of_day >= 0 &&
                 row.hour_of_day < 24) {
-              heatmapData[row.day_of_week][row.hour_of_day] = row.count;
+              heatmapData[row.day_of_week][row.hour_of_day] = row.count || 0;
+            } else {
+              // Log pour débogage
+              console.warn("Données ignorées:", row);
             }
           });
+        } else {
+          console.warn("Format de données inattendu:", rawData);
         }
 
         setData(heatmapData);

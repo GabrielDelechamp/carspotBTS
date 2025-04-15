@@ -42,8 +42,7 @@ const RatioSuperspot = () => {
       try {
         const { count: spotsCount, error: spotsError } = await supabase
           .from('user_collections')
-          .select('*', { count: 'exact', head: true })
-          .eq('spotted', true);
+          .select('*', { count: 'exact', head: true });
 
         if (spotsError) throw spotsError;
 
@@ -78,7 +77,7 @@ const RatioSuperspot = () => {
   }, []);
 
 
-  const chartData = [{ month: "january", superspot: totalsuperSpots, spot: totalSpots }]
+  const chartData = [{ month: "january", superspot: totalsuperSpots, spot: (totalSpots-totalsuperSpots)}]
 
   const RatioSuperspot =  Math.floor(((chartData[0].superspot*100) / chartData[0].spot)*100)/100 + '%'
 
